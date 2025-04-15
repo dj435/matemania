@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Juego de Matemáticas con Botones</title>
+    <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding-top: 30px;
+      background-color: #f0f8ff;
+    }
+    .pregunta {
+      font-size: 28px;
+      margin: 20px;
+    }
+    #respuesta {
+      font-size: 40px;
+      color: black;
+      margin: 10px auto; /* centrado horizontal */
+      height: 50px;
+      width: 200px;
+      text-align: center;
+      border: 2px solid #333;
+      border-radius: 5px;
+      background-color: LightCyan;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+    }
+    
+     #empezar {
+      font-size: 20px;
+      margin: 1px ;
+      color: white;
+      height: 50px;
+      width: 100px;
+      text-align: center;
+      border: 1px solid #333;
+      border-radius: 5px;
+      background-color: lime;
+      background: radial-gradient(circle at 30% 30%, lime, green);
+    }
+    .botones {
+      display: grid;
+      grid-template-columns: repeat(3, 60px);
+      gap: 10px;
+      justify-content: center;
+      margin-top: 15px;
+    }
+    .botones button {
+      padding: 15px;
+      color: white;
+      font-size: 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      border-radius: 20px;
+      background: radial-gradient(circle at 30% 30%, #888, #111); 
+      box-shadow:  -2px -2px 4px rgba(0,0,0,0.8);
+    }
+    .botones button:active {
+  transform: scale(0.99); /* achica un poquito */
+  background: radial-gradient(circle at 30% 30%, #777, #000); /* más oscuro al presionar */
+  box-shadow: inset 2px 2px 6px rgba(0,0,0,0.6);
+}
+    .acciones {
+      margin-top: 10px;
+    }
+    .acciones button {
+      padding: 10px 20px;
+      font-size: 18px;
+      margin: 10px;
+      cursor: pointer;
+    }
+    .resultado {
+      font-size: 30px;
+      margin-top: 1px;
+      height: 30px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>MATEMANIA</h1>
+
+  <div class="pregunta" id="pregunta"></div>
+
+  <div id="respuesta" readonly></div>
+
+  <div class="botones" id="teclado">
+    <!-- Botones del 1 al 9 y 0 -->
+  </div>
+
+  <div class="acciones">
+    <button id="siguiente" onclick="nuevaPregunta()" disabled>Siguiente</button>
+  </div>
+
+  <div class="resultado" id="resultado"></div>
+  <button id="empezar">Empezar</button>
+
+  <audio id="voz" src=""></audio>
+  <audio id="boton" src="audio/boton1.mp3"></audio>
+  <audio id="wrong" src="audio/wrong2.mp3"></audio>
+  <audio id="right" src="audio/right.mp3"></audio>
+
+<script>
+  let num1, num2, operacion, resultadoCorrecto;
+  let respuestaTexto = "";
+  let verificado = false;
+  let audioIniciado = false;
+
+  function reproducirSecuencia(archivos) {
+    const audio = document.getElementById("voz");
+    let index = 0;
+
+    function reproducir() {
+      if (index >= archivos.length) return;
+
+      audio.src = `audio/${archivos[index]}`;
+      audio.play();
+
+      audio.onloadedmetadata = () => {
+        const duracion = audio.duration * 1000; // en milisegundos
+        const solapamiento = 0; // milisegundos de solapamiento
+        const espera = Math.max(0, duracion - solapamiento);
+        setTimeout(() => {
+          index++;
+          reproducir();
+        }, espera);
+      };
+    }
+
+    reproducir();
+  }
+
+  function nuevaPregunta() {
+    verificado = false;
+    respuestaTexto = "";
+    document.getElementById("respuesta").innerText = "";
+    document.getElementById("resultado").innerText = "";
+
+    // Desactivar el botón "Siguiente" hasta que se verifique la respuesta
+    document.getElementById("siguiente").disabled = true;
+
+    const operaciones = ["+", "-", "×", "÷"];
+    operacion = operaciones[Math.floor(Math.random() * operaciones.length)];
+
+    if (operacion === "+") {
+      num1 = Math.floor(Math.random() * 100);
+      num2 = Math.floor(Math.random() * (100 - num1));
+      resultadoCorrecto = num1 + num2;
+    } else if (operacion === "-") {
+      num1 = Math.floor(Math.random() * 100);
+      num2 = Math.floor(Math.random() * (num1 + 1));
+      resultadoCorrecto = num1 - num2;
+    } else if (operacion === "×") {
+      do {
+        num1 = Math.floor(Math.random() * 11);
+        num2 = Math.floor(Math.random() * 11);
+        resultadoCorrecto = num1 * num2;
+      } while (resultadoCorrecto > 100);
+    } else if (operacion === "÷") {
+      do {
+        resultadoCorrecto = Math.floor(Math.random() * 10) + 1;
+        num2 = Math.floor(Math.random() * 10) + 1;
+        num1 = resultadoCorrecto * num2;
+      } while (num1 > 100);
+    }
+
+    document.getElementById("pregunta").innerText = `¿CUÁNTO ES ${num1} ${operacion} ${num2}?`;
+
+    if (audioIniciado) {
+      const operadorAudio = {
+        "+": "mas.mp3",
+        "-": "menos.mp3",
+        "×": "por.mp3",
+        "÷": "dividido.mp3"
+      };
+
+      reproducirSecuencia([
+        "cuanto es.mp3",
+        `${num1}.mp3`,
+        operadorAudio[operacion],
+        `${num2}.mp3`
+      ]);
+    }
+  }
+
+function agregarNumero(n) {
+  if (verificado || respuestaTexto.length >= 4) return; // máximo 4 caracteres
+  respuestaTexto += n;
+  document.getElementById("respuesta").innerText = respuestaTexto;
+  document.getElementById("boton").play();
+}
+
+  function borrar() {
+    if (verificado) return;
+    respuestaTexto = "";
+    document.getElementById("respuesta").innerText = "";
+    document.getElementById("resultado").innerText = "";
+  }
+
+  function verificar() {
+    if (verificado || respuestaTexto === "") return;
+
+    const respuestaUsuario = parseInt(respuestaTexto);
+    const resultado = document.getElementById("resultado");
+    const operadorAudio = {
+      "+": "mas.mp3",
+      "-": "menos.mp3",
+      "×": "por.mp3",
+      "÷": "dividido.mp3"
+    };
+
+    verificado = true;
+
+    if (isNaN(respuestaUsuario)) {
+      resultado.innerText = "Ingresa una respuesta válida.";
+      resultado.style.color = "orange";
+      verificado = false;
+      return;
+    }
+
+    if (respuestaUsuario === resultadoCorrecto) {
+      resultado.innerText = `¡CORRECTO! ${num1} ${operacion} ${num2} ES ${resultadoCorrecto}`;
+      resultado.style.color = "green";
+
+      reproducirSecuencia([
+        "correcto.mp3",
+        `${num1}.mp3`,
+        operadorAudio[operacion],
+        `${num2}.mp3`,
+        "es.mp3",
+        `${resultadoCorrecto}.mp3`
+      ]);
+      document.getElementById("right").play();  // Sonido para respuesta correcta
+    } else {
+      resultado.innerText = `Incorrecto. La respuesta es ${resultadoCorrecto}.`;
+      resultado.style.color = "red";
+
+      reproducirSecuencia([
+        "incorrecto la respuesta es.mp3",
+        `${resultadoCorrecto}.mp3`
+      ]);
+      document.getElementById("wrong").play();  // Sonido para respuesta incorrecta
+    }
+
+    // Habilitar el botón "Siguiente" después de verificar
+    document.getElementById("siguiente").disabled = false;
+  }
+
+  function iniciarJuego() {
+    if (!audioIniciado) {
+      audioIniciado = true;
+      document.getElementById("empezar").style.display = "none";
+      nuevaPregunta();
+    }
+  }
+
+  window.onload = () => {
+    const teclado = document.getElementById("teclado");
+
+    for (let i = 1; i <= 9; i++) {
+      const btn = document.createElement("button");
+      btn.innerText = i;
+      btn.onclick = () => agregarNumero(i);
+      teclado.appendChild(btn);
+    }
+
+    const cero = document.createElement("button");
+    cero.innerText = "0";
+    cero.onclick = () => agregarNumero(0);
+    teclado.appendChild(cero);
+
+    const borrarBtn = document.createElement("button");
+    borrarBtn.innerText = "←";
+    borrarBtn.onclick = borrar;
+    teclado.appendChild(borrarBtn);
+
+    const verificarBtn = document.createElement("button");
+    verificarBtn.innerText = "✔";
+    verificarBtn.onclick = verificar;
+    teclado.appendChild(verificarBtn);
+
+    document.getElementById("empezar").onclick = iniciarJuego;
+  };
+
+</script>
+
+</body>
+</html>
