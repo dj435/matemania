@@ -3,23 +3,26 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta charset="UTF-8">
-  <title>Juego de Matemáticas</title>
+  <title>Juego de Matemáticas con Botones</title>
     <style>
-body {
-  font-family: Arial, sans-serif;
-  text-align: center;
-  background-color: #f0f8ff;
-  overflow: hidden;
-  margin: 0;
-  padding: 0;
-}
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding-top: 30px;
+      margin: 5px;
+      padding: 0;
+      background-color: #f0f8ff;
+    }
     .pregunta {
-      font-size: 28px;
+      font-size: 35px;
       margin: 20px;
+        font-weight: bold;
+        text-shadow: 2px 2px 2px rgba(0,200,0,0.7);
     }
     #respuesta {
       font-size: 40px;
       color: black;
+        font-weight: bold;
       margin: 10px auto; /* centrado horizontal */
       height: 50px;
       width: 200px;
@@ -32,7 +35,8 @@ body {
     
      #empezar {
       font-size: 20px;
-      margin: 1px ;
+        margin-top: 0px;
+  display: inline-block;
       color: white;
       height: 50px;
       width: 100px;
@@ -42,6 +46,11 @@ body {
       background-color: lime;
       background: radial-gradient(circle at 30% 30%, lime, green);
     }
+      
+      #siguiente {
+  margin-bottom: 0px;
+        border: 1px solid #333;
+}
     .botones {
       display: grid;
       grid-template-columns: repeat(3, 60px);
@@ -50,18 +59,18 @@ body {
       margin-top: 15px;
     }
     .botones button {
-      padding: 15px;
+      padding: 18px;
       color: white;
-      font-size: 20px;
+      font-size: 25px;
       border-radius: 5px;
       cursor: pointer;
-      border-radius: 20px;
+      border-radius: 10px;
       background: radial-gradient(circle at 30% 30%, #888, #111); 
       box-shadow:  -2px -2px 4px rgba(0,0,0,0.8);
     }
     .botones button:active {
-  transform: scale(0.99); /* achica un poquito */
-  background: radial-gradient(circle at 30% 30%, #777, #000); /* más oscuro al presionar */
+  transform: scale(0.99);
+  background: radial-gradient(circle at 30% 30%, #777, #000);
   box-shadow: inset 2px 2px 6px rgba(0,0,0,0.6);
 }
     .acciones {
@@ -78,6 +87,11 @@ body {
       margin-top: 1px;
       height: 30px;
     }
+      
+h1 {
+    margin-top: 0;
+  margin-bottom: 1px;
+}
   </style>
 </head>
 <body>
@@ -105,36 +119,41 @@ body {
   <audio id="right" src="audio/right.mp3"></audio>
 
 <script>
-  let num1, num2, operacion, resultadoCorrecto;
-  let respuestaTexto = "";
-  let verificado = false;
-  let audioIniciado = false;
+let num1, num2, operacion, resultadoCorrecto;
+let respuestaTexto = "";
+let verificado = false;
+let audioIniciado = false;
+let operacionesRealizadas = JSON.parse(localStorage.getItem("operacionesRealizadas")) || [];  // Obtener operaciones previas desde localStorage
+let ultimaPreguntaTimestamp = localStorage.getItem("ultimaPreguntaTimestamp") || 0;  // Obtener el tiempo de la última pregunta
 
-  function reproducirSecuencia(archivos) {
-    const audio = document.getElementById("voz");
-    let index = 0;
+// Función para reproducir la secuencia de audios
+function reproducirSecuencia(archivos) {
+  const audio = document.getElementById("voz");
+  let index = 0;
 
-    function reproducir() {
-      if (index >= archivos.length) return;
+  function reproducir() {
+    if (index >= archivos.length) return;
 
-      audio.src = `audio/${archivos[index]}`;
-      audio.play();
+    audio.src = `audio/${archivos[index]}`;
+    audio.play();
 
-      audio.onloadedmetadata = () => {
-        const duracion = audio.duration * 1000; // en milisegundos
-        const solapamiento = 0; // milisegundos de solapamiento
-        const espera = Math.max(0, duracion - solapamiento);
-        setTimeout(() => {
-          index++;
-          reproducir();
-        }, espera);
-      };
-    }
-
-    reproducir();
+    audio.onloadedmetadata = () => {
+      const duracion = audio.duration * 1000; // en milisegundos
+      const solapamiento = 0; // milisegundos de solapamiento
+      const espera = Math.max(0, duracion - solapamiento);
+      setTimeout(() => {
+        index++;
+        reproducir();
+      }, espera);
+    };
   }
 
-  function nuevaPregunta() {
+  reproducir();
+}
+
+// Generación de una nueva pregunta
+// Generación de una nueva pregunta
+function nuevaPregunta() {
     verificado = false;
     respuestaTexto = "";
     document.getElementById("respuesta").innerText = "";
@@ -146,47 +165,61 @@ body {
     const operaciones = ["+", "-", "×", "÷"];
     operacion = operaciones[Math.floor(Math.random() * operaciones.length)];
 
+    // Generación de preguntas según la operación
     if (operacion === "+") {
-      num1 = Math.floor(Math.random() * 100);
-      num2 = Math.floor(Math.random() * (100 - num1));
-      resultadoCorrecto = num1 + num2;
+        do {
+            num1 = Math.floor(Math.random() * 70) + 10; // 10–79
+            num2 = Math.floor(Math.random() * 70) + 10;
+            resultadoCorrecto = num1 + num2;
+        } while (resultadoCorrecto > 100);
     } else if (operacion === "-") {
-      num1 = Math.floor(Math.random() * 100);
-      num2 = Math.floor(Math.random() * (num1 + 1));
-      resultadoCorrecto = num1 - num2;
+        do {
+            num1 = Math.floor(Math.random() * 90) + 10; // 10–99
+            num2 = Math.floor(Math.random() * num1);    // siempre menor que num1
+            resultadoCorrecto = num1 - num2;
+        } while (resultadoCorrecto <= 1 || num2 === 0); // evitamos 0 en la resta
     } else if (operacion === "×") {
-      do {
-        num1 = Math.floor(Math.random() * 11);
-        num2 = Math.floor(Math.random() * 11);
-        resultadoCorrecto = num1 * num2;
-      } while (resultadoCorrecto > 100);
+        do {
+            num1 = Math.floor(Math.random() * 9) + 2; // 2–10
+            num2 = Math.floor(Math.random() * 9) + 2;
+            resultadoCorrecto = num1 * num2;
+        } while (resultadoCorrecto > 100);
     } else if (operacion === "÷") {
-      do {
-        resultadoCorrecto = Math.floor(Math.random() * 10) + 1;
-        num2 = Math.floor(Math.random() * 10) + 1;
-        num1 = resultadoCorrecto * num2;
-      } while (num1 > 100);
+        do {
+            num2 = Math.floor(Math.random() * 9) + 2; // 2–10
+            num1 = num2 * (Math.floor(Math.random() * 9) + 2); // aseguramos que la división sea exacta
+            resultadoCorrecto = num1 / num2;
+        } while (num1 > 100 || num1 % num2 !== 0); // Aseguramos que la división sea exacta
     }
 
-    document.getElementById("pregunta").innerText = `¿CUÁNTO ES ${num1} ${operacion} ${num2}?`;
+    // Mostrar la pregunta
+    document.getElementById("pregunta").innerText = `¿Cuánto es ${num1} ${operacion} ${num2}?`;
 
+    // Reproducir los audios de la pregunta si el audio está iniciado
     if (audioIniciado) {
-      const operadorAudio = {
-        "+": "mas.mp3",
-        "-": "menos.mp3",
-        "×": "por.mp3",
-        "÷": "dividido.mp3"
-      };
+        const operadorAudio = {
+            "+": "mas.mp3",
+            "-": "menos.mp3",
+            "×": "por.mp3",
+            "÷": "dividido.mp3"
+        };
 
-      reproducirSecuencia([
-        "cuanto es.mp3",
-        `${num1}.mp3`,
-        operadorAudio[operacion],
-        `${num2}.mp3`
-      ]);
+        reproducirSecuencia([ 
+            "cuanto es.mp3", 
+            `${num1}.mp3`, 
+            operadorAudio[operacion], 
+            `${num2}.mp3` 
+        ]);
     }
-  }
+}
 
+
+// Verificar si la operación ya fue realizada recientemente
+function isOperacionRepetida(num1, num2, operacion) {
+  return operacionesRealizadas.some(op => op.num1 === num1 && op.num2 === num2 && op.operacion === operacion);
+}
+
+// Función para agregar un número a la respuesta
 function agregarNumero(n) {
   if (verificado || respuestaTexto.length >= 4) return; // máximo 4 caracteres
   respuestaTexto += n;
@@ -194,99 +227,104 @@ function agregarNumero(n) {
   document.getElementById("boton").play();
 }
 
-  function borrar() {
-    if (verificado) return;
-    respuestaTexto = "";
-    document.getElementById("respuesta").innerText = "";
-    document.getElementById("resultado").innerText = "";
-  }
+// Función para borrar la respuesta
+function borrar() {
+  if (verificado) return;
+  respuestaTexto = "";
+  document.getElementById("respuesta").innerText = "";
+  document.getElementById("resultado").innerText = "";
+}
 
-  function verificar() {
-    if (verificado || respuestaTexto === "") return;
+// Función para verificar la respuesta
+function verificar() {
+  if (verificado || respuestaTexto === "") return;
 
-    const respuestaUsuario = parseInt(respuestaTexto);
-    const resultado = document.getElementById("resultado");
-    const operadorAudio = {
-      "+": "mas.mp3",
-      "-": "menos.mp3",
-      "×": "por.mp3",
-      "÷": "dividido.mp3"
-    };
-
-    verificado = true;
-
-    if (isNaN(respuestaUsuario)) {
-      resultado.innerText = "Ingresa una respuesta válida.";
-      resultado.style.color = "orange";
-      verificado = false;
-      return;
-    }
-
-    if (respuestaUsuario === resultadoCorrecto) {
-      resultado.innerText = `¡CORRECTO! ${num1} ${operacion} ${num2} ES ${resultadoCorrecto}`;
-      resultado.style.color = "green";
-
-      reproducirSecuencia([
-        "correcto.mp3",
-        `${num1}.mp3`,
-        operadorAudio[operacion],
-        `${num2}.mp3`,
-        "es.mp3",
-        `${resultadoCorrecto}.mp3`
-      ]);
-      document.getElementById("right").play();  // Sonido para respuesta correcta
-    } else {
-      resultado.innerText = `Incorrecto. La respuesta es ${resultadoCorrecto}.`;
-      resultado.style.color = "red";
-
-      reproducirSecuencia([
-        "incorrecto la respuesta es.mp3",
-        `${resultadoCorrecto}.mp3`
-      ]);
-      document.getElementById("wrong").play();  // Sonido para respuesta incorrecta
-    }
-
-    // Habilitar el botón "Siguiente" después de verificar
-    document.getElementById("siguiente").disabled = false;
-  }
-
-  function iniciarJuego() {
-    if (!audioIniciado) {
-      audioIniciado = true;
-      document.getElementById("empezar").style.display = "none";
-      nuevaPregunta();
-    }
-  }
-
-  window.onload = () => {
-    const teclado = document.getElementById("teclado");
-
-    for (let i = 1; i <= 9; i++) {
-      const btn = document.createElement("button");
-      btn.innerText = i;
-      btn.onclick = () => agregarNumero(i);
-      teclado.appendChild(btn);
-    }
-
-    const cero = document.createElement("button");
-    cero.innerText = "0";
-    cero.onclick = () => agregarNumero(0);
-    teclado.appendChild(cero);
-
-    const borrarBtn = document.createElement("button");
-    borrarBtn.innerText = "←";
-    borrarBtn.onclick = borrar;
-    teclado.appendChild(borrarBtn);
-
-    const verificarBtn = document.createElement("button");
-    verificarBtn.innerText = "✔";
-    verificarBtn.onclick = verificar;
-    teclado.appendChild(verificarBtn);
-
-    document.getElementById("empezar").onclick = iniciarJuego;
+  const respuestaUsuario = parseInt(respuestaTexto);
+  const resultado = document.getElementById("resultado");
+  const operadorAudio = {
+    "+": "mas.mp3",
+    "-": "menos.mp3",
+    "×": "por.mp3",
+    "÷": "dividido.mp3"
   };
 
-</script>
+  verificado = true;
 
+  if (isNaN(respuestaUsuario)) {
+    resultado.innerText = "Ingresa una respuesta válida.";
+    resultado.style.color = "orange";
+    verificado = false;
+    return;
+  }
+
+  if (respuestaUsuario === resultadoCorrecto) {
+    resultado.innerText = `${resultadoCorrecto} ¡CORRECTO!`;
+    resultado.style.color = "green";
+    resultado.style.fontWeight = "bold";
+
+    reproducirSecuencia([
+      `${resultadoCorrecto}.mp3`,
+      "correcto.mp3"
+    ]);
+    document.getElementById("right").play();  // Sonido para respuesta correcta
+  } else {
+    resultado.innerText = `INCORRECTO! ${resultadoCorrecto}.`;
+    resultado.style.color = "red";
+    resultado.style.fontWeight = "bold";
+
+    reproducirSecuencia([
+      "incorrecto.mp3",
+      "es.mp3",
+      `${resultadoCorrecto}.mp3`
+    ]);
+    document.getElementById("wrong").play();  // Sonido para respuesta incorrecta
+  }
+
+  // Habilitar el botón "Siguiente" después de verificar
+  document.getElementById("siguiente").disabled = false;
+}
+
+// Función para iniciar el juego
+function iniciarJuego() {
+  if (!audioIniciado) {
+    audioIniciado = true;
+    document.getElementById("empezar").style.display = "none";
+    nuevaPregunta();
+  }
+}
+
+// Inicialización de la página al cargar
+window.onload = () => {
+  const teclado = document.getElementById("teclado");
+
+  // Crear los botones numéricos
+  for (let i = 1; i <= 9; i++) {
+    const btn = document.createElement("button");
+    btn.innerText = i;
+    btn.onclick = () => agregarNumero(i);
+    teclado.appendChild(btn);
+  }
+
+  const cero = document.createElement("button");
+  cero.innerText = "0";
+  cero.onclick = () => agregarNumero(0);
+  teclado.appendChild(cero);
+
+  const borrarBtn = document.createElement("button");
+  borrarBtn.innerText = "←";
+  borrarBtn.onclick = borrar;
+  teclado.appendChild(borrarBtn);
+
+  const verificarBtn = document.createElement("button");
+  verificarBtn.innerText = "✔";
+  verificarBtn.onclick = verificar;
+  teclado.appendChild(verificarBtn);
+
+  document.getElementById("empezar").onclick = iniciarJuego;
+};
+
+</script>
+  
 </body>
 </html>
+
