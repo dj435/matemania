@@ -5,19 +5,25 @@
   <meta charset="UTF-8">
   <title>Juego de Matemáticas con Botones</title>
     <style>
+      
+      ::-webkit-scrollbar {
+    display: none;
+}
     body {
       font-family: Arial, sans-serif;
       text-align: center;
       padding-top: 30px;
       margin: 5px;
       padding: 0;
-      background-color: #f0f8ff;
+      background-color: rgba(40,154,255,0.9);
     }
+      
+
     .pregunta {
       font-size: 35px;
-      margin: 20px;
-        font-weight: bold;
-        text-shadow: 2px 2px 2px rgba(0,200,0,0.7);
+      margin: 10px;
+      font-weight: bold;
+      text-shadow: 2px 2px 2px rgba(0,200,0,0.7);
     }
     #respuesta {
       font-size: 40px;
@@ -35,8 +41,8 @@
     
      #empezar {
       font-size: 20px;
-        margin-top: 0px;
-  display: inline-block;
+      margin-top: 0px;
+      display: inline-block;
       color: white;
       height: 50px;
       width: 100px;
@@ -48,8 +54,10 @@
     }
       
       #siguiente {
-  margin-bottom: 0px;
-        border: 1px solid #333;
+      margin-bottom: 0px;
+      border: 1px solid #333;
+      color: black;
+      background-color: white;
 }
     .botones {
       display: grid;
@@ -62,15 +70,14 @@
       padding: 18px;
       color: white;
       font-size: 25px;
-      border-radius: 5px;
       cursor: pointer;
       border-radius: 10px;
-      background: radial-gradient(circle at 30% 30%, #888, #111); 
-      box-shadow:  -2px -2px 4px rgba(0,0,0,0.8);
+      background: radial-gradient(circle at 30% 30%, rgba(32,32,32), black); 
+      box-shadow:  -3px -2px 6px rgba(0,0,0,0.9);
     }
     .botones button:active {
   transform: scale(0.99);
-  background: radial-gradient(circle at 30% 30%, #777, #000);
+  background: radial-gradient(circle at 30% 30%, #555, #000);
   box-shadow: inset 2px 2px 6px rgba(0,0,0,0.6);
 }
     .acciones {
@@ -81,12 +88,14 @@
       font-size: 18px;
       margin: 10px;
       cursor: pointer;
+        border-radius: 10px;
+        box-shadow:  2px 2px 6px rgba(0,0,0,0.9);
     }
     .resultado {
       font-size: 30px;
       margin-top: 1px;
       height: 30px;
-    }
+    } 
       
 
   </style>
@@ -103,7 +112,7 @@
   </div>
 
   <div class="acciones">
-    <button id="siguiente" onclick="nuevaPregunta()" disabled>Siguiente</button>
+    <button id="siguiente" onclick="nuevaPregunta()" disabled>SIGUIENTE</button>
   </div>
 
   <div class="resultado" id="resultado"></div>
@@ -158,6 +167,8 @@ function nuevaPregunta() {
 
     // Desactivar el botón "Siguiente" hasta que se verifique la respuesta
     document.getElementById("siguiente").disabled = true;
+    siguiente.style.background = "lime";
+  siguiente.style.color = "white";
 
     const operaciones = ["+", "-", "×", "÷"];
     operacion = operaciones[Math.floor(Math.random() * operaciones.length)];
@@ -256,7 +267,7 @@ function verificar() {
 
   if (respuestaUsuario === resultadoCorrecto) {
     resultado.innerText = `${resultadoCorrecto} ¡CORRECTO!`;
-    resultado.style.color = "green";
+    resultado.style.color = "white";
     resultado.style.fontWeight = "bold";
 
     reproducirSecuencia([
@@ -326,3 +337,4 @@ window.onload = () => {
 
 </body>
 </html>
+
