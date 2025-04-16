@@ -87,13 +87,14 @@
       margin-top: 1px;
       height: 30px;
     }
-    
+      
+
   </style>
 </head>
 <body>
 
-
-  <div class="pregunta" id="pregunta"></div>
+<div class="contenedor"></div>
+<div class="pregunta" id="pregunta"></div>
 
   <div id="respuesta" readonly></div>
 
@@ -112,6 +113,7 @@
   <audio id="boton" src="audio/boton1.mp3"></audio>
   <audio id="wrong" src="audio/wrong2.mp3"></audio>
   <audio id="right" src="audio/right.mp3"></audio>
+  </div>
 
 <script>
 let num1, num2, operacion, resultadoCorrecto;
@@ -318,8 +320,9 @@ window.onload = () => {
   document.getElementById("empezar").onclick = iniciarJuego;
 };
 
+
 </script>
-  
+
+
 </body>
 </html>
-
